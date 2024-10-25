@@ -35,6 +35,17 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners();
   }
+  //membuat variablebernama favorites untuk menyimpan data yg di like
+   var favorites = <WordPair>[];
+
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  } 
 }
 
 class MyHomePage extends StatelessWidget {
@@ -42,23 +53,42 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
      var pair = appState.current;  
+      IconData icon;
+    if (appState.favorites.contains(pair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
 
     return Scaffold(
       body: Center(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center, 
           children: [
-            Text('A random idea:'),
              BigCard(pair: pair),
           
-             ElevatedButton(
-              onPressed: () {
-                print('button pressed!');
-                 appState.getNext();  // ← This instead of print().
-        
-              },
-              child: Text('Next'),
-            ),
+             Row(
+              mainAxisSize: MainAxisSize.min,
+               children: [
+                 ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(icon),
+                  label: Text('Like'),
+                ),
+                SizedBox(width: 10),
+
+                 ElevatedButton(
+                  onPressed: () {
+                    print('button pressed!');
+                     appState.getNext();  
+                         
+                  },
+                  child: Text('Next'),
+                             ),
+               ],
+             ),
           ],
         ),
       ),
@@ -76,7 +106,8 @@ class BigCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final theme = Theme.of(context);  
+     final theme = Theme.of(context);  //menambahkan tema pada teks
+     //membuat style untuk teks,diberi nama style,style warna mengikuti parent
       final style = theme.textTheme.displayMedium!.copyWith(
       color: theme.colorScheme.onPrimary,
     );
@@ -84,7 +115,8 @@ class BigCard extends StatelessWidget {
        color: theme.colorScheme.primary,
       child: Padding(
         padding: const EdgeInsets.all(20),
-         child: Text(pair.asLowerCase, style: style,semanticsLabel: "${pair.first} ${pair.second}"),
+         child: Text(pair.asLowerCase, style: style,
+         semanticsLabel: "${pair.first} ${pair.second}"),
       ),
     );
   }
