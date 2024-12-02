@@ -1,123 +1,94 @@
-//memasukkan package yang dibutuhkan oleh aplikasi
-import 'package:english_words/english_words.dart';//paket bahasa inggris
-import 'package:flutter/material.dart';//paket untuk tampilan UI (material UI)
-import 'package:provider/provider.dart';//paket untuk interaksi aplikasi
+import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-//membuat abstrak aplikasi dari statelesswidget (yang menjalankan seluruh aplikasi di dalam MyApp)
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});//menunjukkan bahwa aplikasi akan tetap, tidak berubah setelah di-build
+  const MyApp({super.key});
 
-  @override //mengganti nilai lama yang sudah ada di tamplate,dengan nilai2 yang baru (replace/overwrite)
+  @override
   Widget build(BuildContext context) {
-    //fungsi yang membangun UI (mengatur posisi widget dst)
-    //changenotifierprovider mendengarkan/mendeteksi semua interaksi yang terjadi di aplikasi
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(), //membuat satu state bernama MyAppState
-      child: MaterialApp( //pada state ini,menggunakan desain material UI
-        title: 'Namer App', //diberi judul namer app
-        theme: ThemeData( //data tema aplikasi diberi warna deepOrange
-          useMaterial3: true, //versi material UI yang dipakai versi 3
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
-        ),
-        home: MyHomePage(), //nama halaman "MyHomePage"
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Japanese food')),
+        body: const PavlovaScreen(),
       ),
     );
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-  //membuat variablebernama favorites untuk menyimpan data yg di like
-   var favorites = <WordPair>[];
+class PavlovaScreen extends StatelessWidget {
+  const PavlovaScreen({super.key});
 
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  } 
-}
-
-class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-     var pair = appState.current;  
-      IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Scaffold(
-      body: Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, 
-          children: [
-             BigCard(pair: pair),
-          
-             Row(
-              mainAxisSize: MainAxisSize.min,
-               children: [
-                 ElevatedButton.icon(
-                  onPressed: () {
-                    appState.toggleFavorite();
-                  },
-                  icon: Icon(icon),
-                  label: Text('Like'),
+    return Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Ramen Ichiraku',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 205, 30, 30)),
                 ),
-                SizedBox(width: 10),
-
-                 ElevatedButton(
-                  onPressed: () {
-                    print('button pressed!');
-                     appState.getNext();  
-                         
-                  },
-                  child: Text('Next'),
-                             ),
-               ],
-             ),
-          ],
+                const SizedBox(height: 8),
+                const Text(
+                  'Ramen Ichiraku (Ramen Ichiraku) adalah sebuah restoran kecil di Konohagakure, yang melayani ramen., '
+                  ' Bar ini juga tempat favorit Naruto Uzumaki dan Iruka Umino untuk makan. Bar ini dijalankan oleh Teuchi dan putrinya Ayame.',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
+                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
+                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
+                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
+                    const Icon(Icons.star_half, color: Colors.deepOrangeAccent),
+                    const SizedBox(width: 8),
+                    const Text('9.000 Reviews'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildIconInfo(Icons.timer, 'PREP:', '25 min'),
+                    _buildIconInfo(Icons.schedule, 'COOK:', '1 hr'),
+                    _buildIconInfo(Icons.restaurant, 'FEEDS:', '4-6'),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+        Expanded(
+          flex: 3,
+          child: Image.network(
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ908tWuyBRzXvaHPVaLlmbMIf2Z1UckJYsVQ&s', // Ganti dengan URL gambar pavlova Anda
+            fit: BoxFit.cover,
+          ),
+        ),
+      ],
     );
   }
-}
 
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-     final theme = Theme.of(context);  //menambahkan tema pada teks
-     //membuat style untuk teks,diberi nama style,style warna mengikuti parent
-      final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-    return Card(
-       color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-         child: Text(pair.asLowerCase, style: style,
-         semanticsLabel: "${pair.first} ${pair.second}"),
-      ),
+  Widget _buildIconInfo(IconData icon, String title, String subtitle) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.deepOrangeAccent[500]),
+        const SizedBox(height: 4),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(subtitle),
+      ],
     );
   }
 }
