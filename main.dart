@@ -1,94 +1,96 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Japanese food')),
-        body: const PavlovaScreen(),
-      ),
-    );
-  }
-}
-
-class PavlovaScreen extends StatelessWidget {
-  const PavlovaScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Ramen Ichiraku',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 205, 30, 30)),
+      home: DefaultTabController(
+        length: 4,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Color(0xFF075E54),
+            title: Text(
+              'WhatsApp',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {},
+                color: Colors.white,
+              ),
+              IconButton(
+                icon: Icon(Icons.more_vert),
+                onPressed: () {},
+                color: Colors.white,
+              ),
+            ],
+            bottom: TabBar(
+              indicatorColor: Colors.greenAccent[400],
+              indicatorWeight: 5.0,
+              labelPadding: EdgeInsets.all(10.0),
+              tabs: <Widget>[
+                Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Ramen Ichiraku (Ramen Ichiraku) adalah sebuah restoran kecil di Konohagakure, yang melayani ramen., '
-                  ' Bar ini juga tempat favorit Naruto Uzumaki dan Iruka Umino untuk makan. Bar ini dijalankan oleh Teuchi dan putrinya Ayame.',
-                  style: TextStyle(fontSize: 16),
+                Text(
+                  'CHAT',
+                  style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
-                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
-                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
-                    Icon(Icons.star, color: Colors.deepOrangeAccent[500]),
-                    const Icon(Icons.star_half, color: Colors.deepOrangeAccent),
-                    const SizedBox(width: 8),
-                    const Text('9.000 Reviews'),
-                  ],
+                Text(
+                  'STATUS',
+                  style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildIconInfo(Icons.timer, 'PREP:', '25 min'),
-                    _buildIconInfo(Icons.schedule, 'COOK:', '1 hr'),
-                    _buildIconInfo(Icons.restaurant, 'FEEDS:', '4-6'),
-                  ],
+                Text(
+                  'PANGGILAN',
+                  style: TextStyle(color: Colors.white),
                 ),
               ],
             ),
           ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Image.network(
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ908tWuyBRzXvaHPVaLlmbMIf2Z1UckJYsVQ&s', // Ganti dengan URL gambar pavlova Anda
-            fit: BoxFit.cover,
+          body: TabBarView(
+            children: <Widget>[
+              Center(child: Text('camera')),
+              ListTile(
+                leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(50.0),
+                    child: Image(
+                        image: NetworkImage(
+                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIlRY_QR4Z11GUL37bP4Il-qmPuk-383wd2A&s'))),
+                title: Text('Coach Justin'),
+                subtitle: Text('P, KKS Calling'),
+                trailing: Text(
+                  '22.30',
+                  style: TextStyle(fontSize: 12.0),
+                ),
+              ),
+              
+              Center(child: Text('Status')),
+              ListTile(
+                leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(50.0),
+                    child: Image(
+                        image: NetworkImage(
+                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIlRY_QR4Z11GUL37bP4Il-qmPuk-383wd2A&s'))),
+                title: Text('Coach Justin'),
+                subtitle: Row(
+                  children: <Widget>[
+                    Icon(Icons.arrow_back, size: 16.0, color: Colors.green),
+                    Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text('Kemarin 02.50')),
+                  ],
+                ),
+                trailing: Icon(Icons.call, color: Colors.green),
+              )
+            ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildIconInfo(IconData icon, String title, String subtitle) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.deepOrangeAccent[500]),
-        const SizedBox(height: 4),
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(subtitle),
-      ],
+      ),
     );
   }
 }
