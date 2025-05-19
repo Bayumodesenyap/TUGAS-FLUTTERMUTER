@@ -1,168 +1,88 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
 
-void main() {
-  runApp(const MaterialApp(
-    title: 'pindah halaman dan mengirim data',
-    home: FirstRoute(),
-  ));
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+Future<Album> fetchAlbum() async {
+  final response = await http.get(
+    Uri.parse('https://jsonplaceholder.typicode.com/albums/3'),
+  );
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    return Album.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
 }
 
-class FirstRoute extends StatelessWidget {
-  const FirstRoute({super.key});
+class Album {
+  final int userId;
+  final int id;
+  final String title;
+
+  const Album({required this.userId, required this.id, required this.title});
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {'userId': int userId, 'id': int id, 'title': String title} => Album(
+        userId: userId,
+        id: id,
+        title: title,
+      ),
+      _ => throw const FormatException('Failed to load album.'),
+    };
+  }
+}
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Future<Album> futureAlbum;
+
+  @override
+  void initState() {
+    super.initState();
+    futureAlbum = fetchAlbum();
+  }
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
+    return MaterialApp(
+      title: 'Fetch Data Example',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Fetch Data Example')),
+        body: Center(
+          child: FutureBuilder<Album>(
+            future: futureAlbum,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Text(snapshot.data!.title);
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('FirstRoute')),
-      backgroundColor: const Color.fromARGB(255, 214, 165, 1),
-      body: Center(
-        child: SingleChildScrollView( 
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 50),
-
-              Image.asset(
-                'asset/images/panturas.jpg',
-                width: 200,
-              ),
-
-              const SizedBox(height: 50),
-
-              const Text(
-                "Please sign in to continue",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // Email
-              TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  hintText: 'Email',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.email, color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Password 
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  suffixIconColor: const Color.fromARGB(255, 255, 0, 0),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  hintText: 'Password',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.lock, color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              OutlinedButton(
-                child: const Text('Log In'),
-                onPressed: () {
-                  if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter both email and password')),
-                    );
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SecondRoute(
-                          email: emailController.text,
-                          password: passwordController.text,
-                        ),
-                      ),
-                    );
-                  }
-                },
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                "Forgot Password?   Don't have an account? Sign up",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              // By default, show a loading spinner.
+              return const CircularProgressIndicator();
+            },
           ),
         ),
       ),
     );
   }
-}
 
-class SecondRoute extends StatelessWidget {
-  final String email;
-  final String password;
-
-  const SecondRoute({
-    super.key,
-    required this.email,
-    required this.password,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("SecondRoute"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Email: $email',
-              style: const TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Password: $password',
-              style: const TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 20),
-            OutlinedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Go back!'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
